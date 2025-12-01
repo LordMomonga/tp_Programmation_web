@@ -1,0 +1,5 @@
+
+  .img-fixed {
+    height: 200px;      /* Hauteur fixe pour TOUTES les images */
+    object-fit: cover;  /* Recadre l’image sans la déformer */
+  }
