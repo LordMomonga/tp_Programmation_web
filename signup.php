@@ -1,4 +1,12 @@
 <?php
+session_start();
+
+if(!isset($_SESSION["users"])){
+    $_SESSION["users"] = [];
+}
+
+
+
 if( isset($_POST["nom"]) && 
 isset($_POST["email"]) && 
 isset($_POST["password"])
@@ -14,7 +22,22 @@ isset($_POST["password"])
         exit;
     }
 
-    
+    $passwordRegex = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*/d)(?=.*[\w_]).{8,}$/";
+
+    if(!preg_match($passwordRegex, $password)){
+        echo "Le mot de passe ne respecte pas les critères de sécurité.";
+        exit;
+    }
+
+    $_SESSION["users"]=[
+        "nom" => $nom,
+        "email" => $email,
+        "password" => password_hash($password, PASSWORD_BCRYPT),
+        "role" => $role
+    ];
+
+    header("Location: login.php");
+    exit;
 
 
 }
