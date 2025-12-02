@@ -3,7 +3,6 @@ session_start();
 
 $error = "";
 
-// S'assurer que users est bien un tableau
 if (!isset($_SESSION["users"]) || !is_array($_SESSION["users"])) {
     $_SESSION["users"] = [];
 }
@@ -23,7 +22,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $error = "Les mots de passe ne correspondent pas.";
         }
 
-        // Vérifier si email déjà utilisé
+        $pattern = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/";
+        if (!preg_match($pattern, $password)) {
+            $error = "Le mot de passe doit contenir au minimum 8 caractères, dont une majuscule, une minuscule, un chiffre et un caractère spécial.";
+        }
+
         foreach ($_SESSION["users"] as $u) {
             if (is_array($u) && isset($u["email"]) && $u["email"] === $email) {
                 $error = "Un compte existe déjà avec ce courriel.";
@@ -31,7 +34,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
 
-        // Ajouter l'utilisateur seulement s'il n'y a pas d'erreur
         if ($error === "") {
             $_SESSION["users"][] = [
                 "nom" => $nom,
@@ -125,7 +127,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         name="password"
                         placeholder="Mot de passe"
                         required
-                        title="Min. 8 caractères : 1 majuscule, 1 minuscule, 1 chiffre, 1 spécial"
+                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"
+                        title="Minimum 8 caractères : au moins 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial"
                     >
                 </div>
 

@@ -1,4 +1,15 @@
+<?php
+session_start();
 
+$artistesFile = 'utils/artistes.json';
+$artistes = [];
+
+if (file_exists($artistesFile)) {
+    $content = file_get_contents($artistesFile);
+    $artistes = json_decode($content, true) ?? [];
+}
+
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -80,6 +91,30 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="mb-4 text-center fw-bold">tout les artistes</h2>
+
+        <div class="row g-4">
+            <?php if (!empty($artistes)): ?>
+                <?php foreach (array_reverse($artistes) as $artiste): ?>
+                    <div class="col-md-4">
+                        <div class="card shadow-sm">
+                            <img src="<?= htmlspecialchars($artiste['photo']); ?>" class="card-img-top artist-img">
+                            <div class="card-body">
+                                <h5 class="card-title"><?= htmlspecialchars($artiste['nom']); ?></h5>
+                                <p class="card-text">Originaire de <?= htmlspecialchars($artiste['ville']); ?>. Ajouté par <?= htmlspecialchars($artiste['ajoute_par']); ?>.</p>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p class="text-center">Aucun artiste enregistré pour le moment.</p>
+            <?php endif; ?>
         </div>
     </div>
 </section>
