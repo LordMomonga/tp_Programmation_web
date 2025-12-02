@@ -1,5 +1,36 @@
-<?php 
+<?php
+session_start();
 
+$error = "";
+
+// S'assurer que users est bien un tableau
+if (!isset($_SESSION["users"]) || !is_array($_SESSION["users"])) {
+    $_SESSION["users"] = [];
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $email = trim($_POST["email"] ?? "");
+    $password = trim($_POST["password"] ?? "");
+
+    if ($email === "" || $password === "") {
+        $error = "Tous les champs sont obligatoires.";
+    } elseif (empty($_SESSION["users"])) {
+        $error = "Aucun utilisateur enregistré. Veuillez vous inscrire d'abord.";
+    } else {
+        $found = false;
+        foreach ($_SESSION["users"] as $user) {
+            if (is_array($user) && isset($user["email"], $user["password"])) {
+                if ($user["email"] === $email && password_verify($password, $user["password"])) {
+                    $_SESSION["user"] = $user;
+                    header("Location: profil.php");
+                    exit;
+                }
+            }
+        }
+        $error = "Courriel ou mot de passe incorrect.";
+    }
+}
 ?>
 
 
@@ -15,22 +46,13 @@
 
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">MML</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+    <?php include 'components/navbar.php'; ?>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="signup.html">S’inscrire</a></li>
-                    <li class="nav-item"><a class="nav-link" href="login.html">Se connecter</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <?php if ($error !== ""): ?>
+    <div class="alert alert-danger" style="position:absolute; bottom:0px; right:0px; margin:20px; width: auto;">
+        <?= $error ?>
+    </div>
+<?php endif; ?>
 
     <!-- CONTAINER -->
     <div class="container mt-5">
@@ -43,16 +65,16 @@
                         <h3 class="text-center mb-4">Se connecter</h3>
 
                         <!-- FORMULAIRE -->
-                        <form id="loginForm">
+                        <form id="loginForm" action="login.php" method="POST">
 
                             <div class="mb-3">
                                 <label class="form-label">Courriel</label>
-                                <input type="email" id="email" class="form-control" required>
+                                <input type="email" id="email" name="email" class="form-control" required>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Mot de passe</label>
-                                <input type="password" id="password" class="form-control" required minlength="8">
+                                <input type="password" name="password" id="password" class="form-control" required minlength="2">
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100">
@@ -61,7 +83,7 @@
 
                             <p class="text-center mt-3">
                                 Pas de compte ?
-                                <a href="signup.html">Créer un compte</a>
+                                <a href="signup.php">Créer un compte</a>
                             </p>
 
                         </form>
@@ -77,74 +99,7 @@
     </div>
 
     <!-- JS -->
-    <script>
-        // Simule une base de données
-        const users = [
-            {
-                nom: "Jean Client",
-                email: "client@example.com",
-                password: "Client123!",
-                role: "client"
-            },
-            {
-                nom: "Marie Gérante",
-                email: "gerant@example.com",
-                password: "Gerant123!",
-                role: "gerant"
-            }
-        ];
-
-        // Vérifier si déjà connecté
-        if(localStorage.getItem("user")){
-            window.location.href = "profile.html";
-        }
-
-        const loginForm = document.getElementById("loginForm");
-        const errorBox = document.getElementById("errorBox");
-
-        loginForm.addEventListener("submit", function(e){
-            e.preventDefault();
-
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value.trim();
-
-            // Validation simple
-            if(email === "" || password === ""){
-                showError("Veuillez remplir tous les champs.");
-                return;
-            }
-
-            // Vérifier utilisateur
-            const user = users.find(u => u.email === email);
-
-            if(!user){
-                showError("Courriel ou mot de passe incorrect.");
-                return;
-            }
-
-            // Vérifier le mot de passe
-            if(user.password !== password){
-                showError("Courriel ou mot de passe incorrect.");
-                return;
-            }
-
-            // Création de session
-            localStorage.setItem("user", JSON.stringify(user));
-
-            // Redirection selon rôle
-            if(user.role === "client"){
-                window.location.href = "profile.html";
-            } else if(user.role === "gerant"){
-                window.location.href = "dashboard.html";
-            }
-        });
-
-        function showError(msg){
-            errorBox.classList.remove("d-none");
-            errorBox.innerText = msg;
-        }
-
-    </script>
+  
 
 </body>
 </html>

@@ -1,3 +1,16 @@
+<?php
+session_start();
+
+if (!isset($_SESSION["users"])) {
+    header("Location: login.php");
+    exit;
+}
+
+$user = $_SESSION["users"];
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -22,25 +35,10 @@
 <body class="bg-light">
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">MML</a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" id="logoutBtn">Déconnexion</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <?php include 'components/navbar.php'; ?>   
 
     <!-- CONTENU PROFIL -->
-    <div class="container mt-5">
+     <div class="container mt-5">
         <div class="card shadow mx-auto" style="max-width: 600px;">
             <div class="card-body">
 
@@ -48,26 +46,25 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Nom :</label>
-                    <p id="userName" class="border rounded p-2 bg-light"></p>
+                    <p class="border rounded p-2 bg-light"><?= htmlspecialchars($user[0]["nom"]?? ""); ?></p>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Courriel :</label>
-                    <p id="userEmail" class="border rounded p-2 bg-light"></p>
+                    <p class="border rounded p-2 bg-light"><?= htmlspecialchars($user[0]["email"]); ?></p>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Rôle :</label>
-                    <p id="userRole" class="border rounded p-2 bg-light"></p>
+                    <p class="border rounded p-2 bg-light"><?= htmlspecialchars($user[0]["role"]); ?></p>
                 </div>
 
-                <button id="logoutButton" class="btn btn-danger w-100">Se déconnecter</button>
+                <a href="logout.php" class="btn btn-danger w-100">Se déconnecter</a>
 
             </div>
         </div>
     </div>
 
-  
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

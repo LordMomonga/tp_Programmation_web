@@ -1,3 +1,60 @@
+<?php
+session_start();
+
+// Sécurité : vérifier si l'utilisateur est connecté
+if (!isset($_SESSION['users'])) {
+    header("Location: login.php");
+    exit;
+}
+
+// Traitement du formulaire
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nom   = trim($_POST['nom']);
+    $ville = trim($_POST['ville']);
+
+    // Gestion de la photo
+    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === 0) {
+        $uploadDir  = "uploads/";
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+        $fileTmp    = $_FILES['photo']['tmp_name'];
+        $fileName   = uniqid() . "_" . basename($_FILES['photo']['name']);
+        $filePath   = $uploadDir . $fileName;
+
+        $allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
+        $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
+        if (!in_array($ext, $allowedExt)) {
+            $error = "Format de fichier non autorisé !";
+        } else {
+            move_uploaded_file($fileTmp, $filePath);
+
+            // Lire le fichier JSON existant
+            $file = 'utils/artistes.json';
+            $artistes = [];
+            if (file_exists($file)) {
+                $content = file_get_contents($file);
+                $artistes = json_decode($content, true) ?? [];
+            }
+
+            // Ajouter le nouvel artiste
+            $artistes[] = [
+                'nom' => $nom,
+                'ville' => $ville,
+                'photo' => $filePath,
+                'ajoute_par' => $_SESSION['user']['nom'] ?? 'inconnu'
+            ];
+            // Enregistrer dans le fichier JSON
+            file_put_contents($file, json_encode($artistes, JSON_PRETTY_PRINT));
+
+            $success = "Artiste ajouté avec succès !";
+        }
+    } else {
+        $error = "Veuillez télécharger une photo valide !";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -20,21 +77,11 @@
 
 <body>
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-        <a class="navbar-brand" href="#">MML</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
-            <li class="nav-item"><a class="nav-link" href="login.html">Se connecter</a></li>
-            <li class="nav-item"><a class="nav-link" href="signup.html">S’inscrire</a></li>
-            </ul>
-        </div>
-        </div>
-    </nav>
+    <?php include 'components/navbar.php'; ?>
+
+     <?php if(isset($success)): ?>
+    <div class="alert alert-success" style="position:absolute; bottom:0px; right:0px; margin:20px; width: auto;"><?= htmlspecialchars($success) ?></div>
+<?php endif; ?>
 
     <!-- CONTENU PRINCIPAL -->
     <div class="container mt-5">
@@ -42,7 +89,7 @@
 
         <div class="card shadow-sm mx-auto" style="max-width: 650px;">
             <div class="card-body">
-                <form action="pageArtiste.php" method="POST" enctype="multipart/form-data">
+                <form action="pageAjout.php" method="POST" enctype="multipart/form-data">
 
                     <!-- Nom de l’artiste -->
                     <div class="mb-3">

@@ -36,7 +36,7 @@
     <div class="container">
         <h1 class="display-4 fw-bold">Bienvenue sur MML</h1>
         <p class="lead">Découvrez, consultez et gérez vos artistes et œuvres préférées.</p>
-        <a href="signup.html" class="btn btn-light btn-lg mt-3">Commencer maintenant</a>
+        <a href="signup.php" class="btn btn-light btn-lg mt-3">Commencer maintenant</a>
     </div>
 </section>
 
@@ -93,43 +93,8 @@
 //   MENU DYNAMIQUE
 // -------------------------------
 
-const user = JSON.parse(localStorage.getItem("user"));
-let menu = "";
-
-if (!user) {
-    // UTILISATEUR NON CONNECTÉ
-    menu = `
-        <li class="nav-item"><a class="nav-link active" href="index.html">Accueil</a></li>
-        <li class="nav-item"><a class="nav-link" href="login.html">Se connecter</a></li>
-        <li class="nav-item"><a class="nav-link" href="signup.html">S’inscrire</a></li>
-    `;
-} else {
-    // UTILISATEUR CONNECTÉ
-    menu += `<li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>`;
-
-    if (user.role === "gerant") {
-        menu += `
-            <li class="nav-item"><a class="nav-link" href="ajouterArtiste.html">Ajouter un artiste</a></li>
-            <li class="nav-item"><a class="nav-link" href="ajouterOeuvre.html">Ajouter une œuvre</a></li>
-        `;
-    }
-
-    menu += `<li class="nav-item"><a class="nav-link" href="profil.html">Profil</a></li>`;
-
-    menu += `
-        <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Déconnexion</a></li>
-    `;
-}
-
-document.getElementById("menu").innerHTML = menu;
-
 // Déconnexion
-document.addEventListener("click", e => {
-    if (e.target.id === "logoutBtn") {
-        localStorage.removeItem("user");
-        window.location.href = "index.html";
-    }
-});
+
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

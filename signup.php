@@ -1,51 +1,53 @@
 <?php
 session_start();
 
-if(!isset($_SESSION["users"])){
+$error = "";
+
+// S'assurer que users est bien un tableau
+if (!isset($_SESSION["users"]) || !is_array($_SESSION["users"])) {
     $_SESSION["users"] = [];
 }
 
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+    if (empty($_POST["nom"]) || empty($_POST["email"]) || empty($_POST["password"]) || empty($_POST["confirm"]) || empty($_POST["role"])) {
+        $error = "Tous les champs sont obligatoires.";
+    } else {
+        $nom = trim($_POST["nom"]);
+        $email = trim($_POST["email"]);
+        $password = trim($_POST["password"]);
+        $confirm = trim($_POST["confirm"]);
+        $role = trim($_POST["role"]);
 
-if( isset($_POST["nom"]) && 
-isset($_POST["email"]) && 
-isset($_POST["password"])
- && isset($_POST["role"])){
- 
-    $nom = trim($_POST["nom"]);
-    $email = trim($_POST["email"]);
-    $password = trim($_POST["password"]);
-    $role = trim($_POST["role"]);
+        if ($password !== $confirm) {
+            $error = "Les mots de passe ne correspondent pas.";
+        }
 
-    if($nom === "" || $email === "" || $password === "" || $role === ""){
-        echo "Tous les champs sont obligatoires.";
-        exit;
+        // Vérifier si email déjà utilisé
+        foreach ($_SESSION["users"] as $u) {
+            if (is_array($u) && isset($u["email"]) && $u["email"] === $email) {
+                $error = "Un compte existe déjà avec ce courriel.";
+                break;
+            }
+        }
+
+        // Ajouter l'utilisateur seulement s'il n'y a pas d'erreur
+        if ($error === "") {
+            $_SESSION["users"][] = [
+                "nom" => $nom,
+                "email" => $email,
+                "password" => password_hash($password, PASSWORD_BCRYPT),
+                "role" => $role
+            ];
+
+            header("Location: login.php");
+            exit;
+        }
     }
-
-    $passwordRegex = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*/d)(?=.*[\w_]).{8,}$/";
-
-    if(!preg_match($passwordRegex, $password)){
-        echo "Le mot de passe ne respecte pas les critères de sécurité.";
-        exit;
-    }
-
-    $_SESSION["users"]=[
-        "nom" => $nom,
-        "email" => $email,
-        "password" => password_hash($password, PASSWORD_BCRYPT),
-        "role" => $role
-    ];
-
-    header("Location: login.php");
-    exit;
-
-
 }
 
-
-
-
 ?>
+
 
 
 <!DOCTYPE html>
@@ -76,6 +78,11 @@ isset($_POST["password"])
     <!-- NAVBAR -->
    <?php include 'components/navbar.php'; ?>
 
+   <?php if ($error !== ""): ?>
+    <div class="alert alert-danger" style="position:absolute; bottom:0px; right:0px; margin:20px; width: auto;">
+        <?= $error ?>
+    </div>
+<?php endif; ?>
     <!-- FORMULAIRE -->
     <div class="container mt-5" style="max-width: 550px;">
         <h2 class="text-center mb-4">Créer un compte</h2>
@@ -118,7 +125,6 @@ isset($_POST["password"])
                         name="password"
                         placeholder="Mot de passe"
                         required
-                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"
                         title="Min. 8 caractères : 1 majuscule, 1 minuscule, 1 chiffre, 1 spécial"
                     >
                 </div>

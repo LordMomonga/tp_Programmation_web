@@ -1,3 +1,52 @@
+<?php
+
+session_start();
+if (!isset($_SESSION['users'])) {
+    header("Location: login.php");
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nom        = trim($_POST['nom']);
+    $artiste    = trim($_POST['artiste']);
+    $role       = trim($_POST['role']);
+    $duree      = (int)$_POST['duree'];
+    $taille     = !empty($_POST['taille']) ? (float)$_POST['taille'] : null;
+    $lyrics     = trim($_POST['lyrics']);
+    $date_ajout = $_POST['date_ajout'];
+    $code_album = trim($_POST['code_album']);
+    $prix       = (float)$_POST['prix'];
+    $youtube    = trim($_POST['youtube']);
+
+    // Lire le fichier JSON existant
+    $file = 'oeuvres.json';
+    $oeuvres = [];
+    if (file_exists($file)) {
+        $content = file_get_contents($file);
+        $oeuvres = json_decode($content, true) ?? [];
+    }
+
+    // Ajouter la nouvelle œuvre
+    $oeuvres[] = [
+        'nom' => $nom,
+        'artiste' => $artiste,
+        'role' => $role,
+        'duree' => $duree,
+        'taille' => $taille,
+        'lyrics' => $lyrics,
+        'date_ajout' => $date_ajout,
+        'code_album' => $code_album,
+        'prix' => $prix,
+        'youtube' => $youtube,
+        'ajoute_par' => $_SESSION['users']['nom'] ?? 'inconnu'
+    ];
+
+    // Enregistrer dans le fichier JSON
+    file_put_contents($file, json_encode($oeuvres, JSON_PRETTY_PRINT));
+
+    $success = "Œuvre ajoutée avec succès !";
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -21,22 +70,11 @@
 <body>
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">MML</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+    <?php include 'components/navbar.php'; ?>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link" href="login.html">Se connecter</a></li>
-                    <li class="nav-item"><a class="nav-link" href="signup.html">S’inscrire</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <?php if(isset($success)): ?>
+    <div style="position:absolute; bottom:0px; right:0px; margin:20px; width: auto;" class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+<?php endif; ?>
 
     <!-- PAGE -->
     <div class="container mt-5">
