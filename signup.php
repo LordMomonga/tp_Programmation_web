@@ -1,3 +1,30 @@
+<?php
+if( isset($_POST["nom"]) && 
+isset($_POST["email"]) && 
+isset($_POST["password"])
+ && isset($_POST["role"])){
+ 
+    $nom = trim($_POST["nom"]);
+    $email = trim($_POST["email"]);
+    $password = trim($_POST["password"]);
+    $role = trim($_POST["role"]);
+
+    if($nom === "" || $email === "" || $password === "" || $role === ""){
+        echo "Tous les champs sont obligatoires.";
+        exit;
+    }
+
+    
+
+
+}
+
+
+
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -24,29 +51,14 @@
 <body>
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">MML</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="#">S’inscrire</a></li>
-                    <li class="nav-item"><a class="nav-link" href="login.html">Se connecter</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+   <?php include 'components/navbar.php'; ?>
 
     <!-- FORMULAIRE -->
     <div class="container mt-5" style="max-width: 550px;">
         <h2 class="text-center mb-4">Créer un compte</h2>
 
         <div class="card shadow p-4">
-            <form>
+            <form action="signup.php" method="POST">
 
                 <!-- Nom -->
                 <div class="mb-3">
