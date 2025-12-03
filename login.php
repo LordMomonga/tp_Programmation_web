@@ -2,6 +2,7 @@
 session_start();
 
 $error = "";
+$success = "";
 
 // S'assurer que users est bien un tableau
 if (!isset($_SESSION["users"]) || !is_array($_SESSION["users"])) {
@@ -24,6 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 if ($user["email"] === $email && password_verify($password, $user["password"])) {
                     $_SESSION["user"] = $user;
                     header("Location: profil.php");
+                    $success = "Connexion réussie ! Redirection en cours...";
                     exit;
                 }
             }
@@ -53,6 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <?= $error ?>
     </div>
 <?php endif; ?>
+
 
     <!-- CONTAINER -->
     <div class="container mt-5">

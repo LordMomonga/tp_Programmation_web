@@ -2,6 +2,7 @@
 session_start();
 
 $error = "";
+$success = "";
 
 if (!isset($_SESSION["users"]) || !is_array($_SESSION["users"])) {
     $_SESSION["users"] = [];
@@ -41,6 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 "password" => password_hash($password, PASSWORD_BCRYPT),
                 "role" => $role
             ];
+            $success = "Inscription réussie ! Vous pouvez maintenant vous connecter.";
 
             header("Location: login.php");
             exit;
@@ -85,6 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <?= $error ?>
     </div>
 <?php endif; ?>
+
     <!-- FORMULAIRE -->
     <div class="container mt-5" style="max-width: 550px;">
         <h2 class="text-center mb-4">Créer un compte</h2>
